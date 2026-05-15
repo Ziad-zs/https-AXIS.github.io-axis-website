@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AXIS — The Brand</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #8B0000;
+    --red-bright: #CC0000;
+    --black: #080808;
+    --off-black: #111111;
+    --surface: #161616;
+    --border: #222222;
+    --white: #F5F0EB;
+    --muted: #666666;
+    --font-display: 'Bebas Neue', sans-serif;
+    --font-body: 'Cormorant Garamond', serif;
+    --font-mono: 'Space Mono', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: var(--font-body);
+    font-size: 18px;
+    cursor: crosshair;
+    overflow-x: hidden;
+  }
+
+  /* ── CUSTOM CURSOR ── */
+  .cursor {
+    width: 12px; height: 12px;
+    background: var(--red-bright);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.15s ease, opacity 0.15s;
+    transform: translate(-50%, -50%);
+  }
+  .cursor-ring {
+    width: 36px; height: 36px;
+    border: 1px solid rgba(204,0,0,0.4);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9998;
+    transition: transform 0.35s ease, opacity 0.2s;
+    transform: translate(-50%, -50%);
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem 3rem;
+    background: linear-gradient(to bottom, rgba(8,8,8,0.98), transparent);
+    backdrop-filter: blur(4px);
+  }
+
+  .nav-logo {
+    font-family: var(--font-display);
+    font-size: 2.2rem;
+    letter-spacing: 0.15em;
+    color: var(--white);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .nav-logo .dot { width: 8px; height: 8px; background: var(--red-bright); border-radius: 50%; display: inline-block; }
+
+  .nav-links {
+    display: flex; gap: 2.5rem; list-style: none;
+  }
+  .nav-links a {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--white); }
+
+  .nav-cart {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    color: var(--white);
+    background: var(--red);
+    padding: 0.5rem 1.2rem;
+    text-decoration: none;
+    transition: background 0.2s;
+  }
+  .nav-cart:hover { background: var(--red-bright); }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-left {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 8rem 3rem 5rem;
+    position: relative;
+    z-index: 2;
+  }
+
+  .hero-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    color: var(--red-bright);
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.3s forwards;
+  }
+
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(7rem, 14vw, 14rem);
+    line-height: 0.88;
+    letter-spacing: -0.01em;
+    color: var(--white);
+    opacity: 0;
+    animation: fadeUp 0.8s 0.5s forwards;
+  }
+
+  .hero-title .accent { color: var(--red-bright); }
+
+  .hero-sub {
+    font-family: var(--font-body);
+    font-style: italic;
+    font-size: 1.25rem;
+    color: var(--muted);
+    margin-top: 2rem;
+    max-width: 340px;
+    line-height: 1.6;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.7s forwards;
+  }
+
+  .hero-cta {
+    margin-top: 3rem;
+    display: flex; gap: 1.2rem; align-items: center;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.9s forwards;
+  }
+
+  .btn-primary {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--black);
+    background: var(--white);
+    padding: 1rem 2rem;
+    text-decoration: none;
+    transition: background 0.2s, color 0.2s;
+  }
+  .btn-primary:hover { background: var(--red-bright); color: var(--white); }
+
+  .btn-ghost {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .btn-ghost:hover { color: var(--white); }
+
+  .hero-right {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-img-wrap {
+    position: absolute; inset: 0;
+    overflow: hidden;
+  }
+
+  .hero-img-wrap img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    filter: grayscale(20%) contrast(1.1);
+    transform: scale(1.05);
+    animation: zoomOut 8s 0s forwards;
+  }
+
+  .hero-img-wrap::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(to right, var(--black) 0%, transparent 30%),
+                linear-gradient(to top, var(--black) 0%, transparent 40%);
+  }
+
+  .hero-scroll {
+    position: absolute;
+    bottom: 3rem; right: 3rem;
+    writing-mode: vertical-rl;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.3em;
+    color: var(--muted);
+    text-transform: uppercase;
+    display: flex; align-items: center; gap: 1rem;
+    z-index: 10;
+    opacity: 0;
+    animation: fadeUp 1s 1.2s forwards;
+  }
+  .hero-scroll::before {
+    content: '';
+    display: block;
+    width: 1px; height: 60px;
+    background: var(--border);
+    animation: lineGrow 1s 1.5s forwards;
+    transform-origin: top;
+    transform: scaleY(0);
+  }
+
+  /* ── MARQUEE ── */
+  .marquee-wrap {
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+    padding: 1rem 0;
+    background: var(--off-black);
+  }
+  .marquee-track {
+    display: flex;
+    white-space: nowrap;
+    animation: marquee 18s linear infinite;
+  }
+  .marquee-item {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    letter-spacing: 0.25em;
+    color: var(--muted);
+    padding: 0 3rem;
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+  .marquee-item span { color: var(--red-bright); margin-right: 3rem; }
+
+  /* ── SECTION HEADERS ── */
+  .section-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 3rem;
+  }
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    color: var(--red-bright);
+    text-transform: uppercase;
+  }
+  .section-title {
+    font-family: var(--font-display);
+    font-size: clamp(3rem, 6vw, 6rem);
+    line-height: 1;
+    color: var(--white);
+    margin-top: 0.5rem;
+  }
+  .section-link {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: color 0.2s;
+    padding-bottom: 0.5rem;
+  }
+  .section-link:hover { color: var(--white); }
+
+  /* ── PRODUCTS GRID ── */
+  section.products {
+    padding: 6rem 3rem;
+    background: var(--off-black);
+  }
+
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2px;
+  }
+
+  .product-card {
+    position: relative;
+    background: var(--surface);
+    overflow: hidden;
+    cursor: pointer;
+    group: true;
+  }
+
+  .product-img {
+    aspect-ratio: 3/4;
+    overflow: hidden;
+    position: relative;
+    background: #1a1a1a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .product-img img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    filter: grayscale(15%);
+  }
+
+  .product-card:hover .product-img img { transform: scale(1.08); }
+
+  .product-img-placeholder {
+    width: 100%; height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    color: var(--border);
+  }
+
+  .upload-icon {
+    width: 48px; height: 48px;
+    border: 2px dashed var(--border);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem;
+    transition: border-color 0.2s, color 0.2s;
+  }
+
+  .product-card:hover .upload-icon { border-color: var(--red); color: var(--red); }
+
+  .product-tag {
+    position: absolute;
+    top: 1rem; left: 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    background: var(--red);
+    color: var(--white);
+    padding: 0.25rem 0.6rem;
+  }
+
+  .product-tag.new { background: var(--white); color: var(--black); }
+
+  .quick-add {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: var(--red);
+    color: var(--white);
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 0.8rem;
+    text-align: center;
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    border: none;
+    cursor: pointer;
+  }
+  .product-card:hover .quick-add { transform: translateY(0); }
+
+  .product-info {
+    padding: 1.2rem 1.5rem 1.5rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .product-name {
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    letter-spacing: 0.05em;
+    color: var(--white);
+  }
+
+  .product-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.5rem;
+  }
+
+  .product-category {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .product-price {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    color: var(--red-bright);
+    letter-spacing: 0.05em;
+  }
+
+  /* ── UPLOAD PANEL ── */
+  .upload-panel {
+    background: var(--surface);
+    border: 1px dashed var(--border);
+    padding: 2rem;
+    margin-bottom: 3rem;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .upload-panel p {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+    flex: 1;
+  }
+
+  .upload-btn {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--white);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 0.8rem 1.5rem;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .upload-btn:hover { border-color: var(--red); background: rgba(139,0,0,0.1); }
+
+  /* ── CATEGORY STRIP ── */
+  .categories {
+    padding: 5rem 3rem;
+    background: var(--black);
+  }
+
+  .cat-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 2px;
+    margin-top: 3rem;
+  }
+
+  .cat-item {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 4/3;
+    background: var(--surface);
+    display: flex;
+    align-items: flex-end;
+    padding: 2rem;
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  .cat-item:first-child { grid-row: span 2; aspect-ratio: auto; }
+
+  .cat-bg {
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, #1a1a1a, #0d0d0d);
+    transition: transform 0.6s ease;
+  }
+  .cat-item:hover .cat-bg { transform: scale(1.05); }
+
+  .cat-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(8,8,8,0.8) 0%, transparent 60%);
+    z-index: 1;
+  }
+
+  .cat-label {
+    position: relative; z-index: 2;
+  }
+
+  .cat-name {
+    font-family: var(--font-display);
+    font-size: 2.5rem;
+    letter-spacing: 0.05em;
+    color: var(--white);
+    display: block;
+  }
+
+  .cat-count {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .cat-arrow {
+    position: absolute;
+    top: 1.5rem; right: 1.5rem;
+    z-index: 2;
+    width: 36px; height: 36px;
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--muted);
+    font-size: 1rem;
+    transition: border-color 0.2s, color 0.2s, background 0.2s;
+  }
+  .cat-item:hover .cat-arrow { border-color: var(--red); color: var(--white); background: var(--red); }
+
+  /* ── FEATURE STRIP ── */
+  .features {
+    padding: 4rem 3rem;
+    background: var(--off-black);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+  }
+
+  .feature-item {
+    padding: 2.5rem 2rem;
+    border-right: 1px solid var(--border);
+    text-align: center;
+  }
+  .feature-item:last-child { border-right: none; }
+
+  .feature-icon {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  .feature-title {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    letter-spacing: 0.05em;
+    color: var(--white);
+    margin-bottom: 0.5rem;
+  }
+
+  .feature-desc {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    text-transform: uppercase;
+    line-height: 1.8;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--black);
+    padding: 5rem 3rem 3rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .footer-top {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 3rem;
+    margin-bottom: 4rem;
+  }
+
+  .footer-brand .logo {
+    font-family: var(--font-display);
+    font-size: 3rem;
+    letter-spacing: 0.1em;
+    color: var(--white);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+  .footer-brand .logo .dot { width: 8px; height: 8px; background: var(--red-bright); border-radius: 50%; }
+
+  .footer-brand p {
+    font-style: italic;
+    color: var(--muted);
+    font-size: 1rem;
+    line-height: 1.7;
+    max-width: 260px;
+  }
+
+  .footer-col h4 {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1.5rem;
+  }
+
+  .footer-col ul { list-style: none; }
+  .footer-col ul li { margin-bottom: 0.8rem; }
+  .footer-col ul li a {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    color: var(--white);
+    text-decoration: none;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+  }
+  .footer-col ul li a:hover { opacity: 1; }
+
+  .footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--border);
+    padding-top: 2rem;
+  }
+
+  .footer-copy {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .social-links {
+    display: flex; gap: 1.5rem;
+  }
+  .social-links a {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  .social-links a:hover { color: var(--red-bright); }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 500;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s;
+    backdrop-filter: blur(6px);
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 3rem;
+    max-width: 500px;
+    width: 90%;
+    position: relative;
+    transform: translateY(20px);
+    transition: transform 0.3s;
+  }
+  .modal-overlay.open .modal { transform: translateY(0); }
+
+  .modal-close {
+    position: absolute; top: 1.5rem; right: 1.5rem;
+    background: none; border: none;
+    color: var(--muted); font-size: 1.5rem;
+    cursor: pointer; transition: color 0.2s;
+  }
+  .modal-close:hover { color: var(--white); }
+
+  .modal h2 {
+    font-family: var(--font-display);
+    font-size: 2.5rem;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+  }
+
+  .modal p {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+  }
+
+  .modal-form { display: flex; flex-direction: column; gap: 1rem; }
+
+  .modal-form input {
+    background: var(--black);
+    border: 1px solid var(--border);
+    color: var(--white);
+    padding: 0.9rem 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .modal-form input:focus { border-color: var(--red); }
+  .modal-form input::placeholder { color: var(--muted); }
+
+  .modal-form button {
+    background: var(--red);
+    color: var(--white);
+    border: none;
+    padding: 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .modal-form button:hover { background: var(--red-bright); }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes zoomOut {
+    from { transform: scale(1.05); }
+    to   { transform: scale(1); }
+  }
+  @keyframes lineGrow {
+    to { transform: scaleY(1); }
+  }
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  /* ── SCROLL ANIMATIONS ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ── UPLOAD IMAGE HANDLING ── */
+  .product-img input[type="file"] {
+    position: absolute; inset: 0;
+    opacity: 0; cursor: pointer;
+    z-index: 10;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; }
+    .hero-right { display: none; }
+    .hero-title { font-size: 6rem; }
+    .cat-grid { grid-template-columns: 1fr 1fr; }
+    .cat-item:first-child { grid-row: span 1; }
+    .features { grid-template-columns: 1fr 1fr; }
+    .footer-top { grid-template-columns: 1fr 1fr; }
+    nav { padding: 1.2rem 1.5rem; }
+    .nav-links { display: none; }
+    section.products { padding: 4rem 1.5rem; }
+    .categories { padding: 4rem 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo"><span class="dot"></span>AXIS</a>
+  <ul class="nav-links">
+    <li><a href="#products">Collection</a></li>
+    <li><a href="#categories">Categories</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <a href="#" class="nav-cart" onclick="openModal()">Cart (0)</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-eyebrow">SS 2025 Collection</div>
+    <h1 class="hero-title">AXIS<br><span class="accent">.</span></h1>
+    <p class="hero-sub">Where every thread tells a story. Bold by design. Ruthless in craft.</p>
+    <div class="hero-cta">
+      <a href="#products" class="btn-primary">Shop Now</a>
+      <a href="#categories" class="btn-ghost">Explore →</a>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-img-wrap">
+      <img src="https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=1200&q=80" alt="AXIS Collection">
+    </div>
+  </div>
+  <div class="hero-scroll">Scroll</div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <span class="marquee-item">AXIS <span>·</span></span>
+    <span class="marquee-item">New Collection <span>·</span></span>
+    <span class="marquee-item">Bold By Design <span>·</span></span>
+    <span class="marquee-item">Premium Quality <span>·</span></span>
+    <span class="marquee-item">Free Shipping <span>·</span></span>
+    <span class="marquee-item">AXIS <span>·</span></span>
+    <span class="marquee-item">New Collection <span>·</span></span>
+    <span class="marquee-item">Bold By Design <span>·</span></span>
+    <span class="marquee-item">Premium Quality <span>·</span></span>
+    <span class="marquee-item">Free Shipping <span>·</span></span>
+  </div>
+</div>
+
+<!-- PRODUCTS -->
+<section class="products" id="products">
+  <div class="section-header reveal">
+    <div>
+      <div class="section-label">Latest Drops</div>
+      <div class="section-title">COLLECTION</div>
+    </div>
+    <a href="#" class="section-link">View All →</a>
+  </div>
+
+  <!-- Upload Notice -->
+  <div class="upload-panel reveal">
+    <p>📸 &nbsp; Click any product image below to upload your own photos</p>
+    <label class="upload-btn">
+      + Add New Product
+      <input type="file" accept="image/*" style="display:none" onchange="addNewProduct(this)">
+    </label>
+  </div>
+
+  <div class="product-grid" id="productGrid">
+
+    <!-- Product 1 -->
+    <div class="product-card reveal">
+      <div class="product-img">
+        <input type="file" accept="image/*" onchange="uploadImg(this)">
+        <img src="https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=600&q=80" alt="T-Shirt">
+        <span class="product-tag new">New</span>
+        <button class="quick-add">+ Add to Cart</button>
+      </div>
+      <div class="product-info">
+        <div class="product-name">CORE TEE — BLACK</div>
+        <div class="product-meta">
+          <span class="product-category">T-Shirt</span>
+          <span class="product-price">EGP 399</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Product 2 -->
+    <div class="product-card reveal">
+      <div class="product-img">
+        <input type="file" accept="image/*" onchange="uploadImg(this)">
+        <img src="https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=600&q=80" alt="Hoodie">
+        <span class="product-tag">Hot</span>
+        <button class="quick-add">+ Add to Cart</button>
+      </div>
+      <div class="product-info">
+        <div class="product-name">AXIS HOODIE</div>
+        <div class="product-meta">
+          <span class="product-category">Hoodie</span>
+          <span class="product-price">EGP 799</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Product 3 -->
+    <div class="product-card reveal">
+      <div class="product-img">
+        <input type="file" accept="image/*" onchange="uploadImg(this)">
+        <img src="https://images.unsplash.com/photo-1542272604-787c3835535d?w=600&q=80" alt="Cargo">
+        <button class="quick-add">+ Add to Cart</button>
+      </div>
+      <div class="product-info">
+        <div class="product-name">TACTICAL CARGO</div>
+        <div class="product-meta">
+          <span class="product-category">Pants</span>
+          <span class="product-price">EGP 649</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Product 4 -->
+    <div class="product-card reveal">
+      <div class="product-img">
+        <input type="file" accept="image/*" onchange="uploadImg(this)">
+        <img src="https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=600&q=80" alt="Jacket">
+        <span class="product-tag new">New</span>
+        <button class="quick-add">+ Add to Cart</button>
+      </div>
+      <div class="product-info">
+        <div class="product-name">SHADOW JACKET</div>
+        <div class="product-meta">
+          <span class="product-category">Outerwear</span>
+          <span class="product-price">EGP 1,299</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Product 5 -->
+    <div class="product-card reveal">
+      <div class="product-img">
+        <input type="file" accept="image/*" onchange="uploadImg(this)">
+        <img src="https://images.unsplash.com/photo-1529374255404-311a2a4f1fd9?w=600&q=80" alt="Graphic Tee">
+        <button class="quick-add">+ Add to Cart</button>
+      </div>
+      <div class="product-info">
+        <div class="product-name">GRAPHIC TEE — RED</div>
+        <div class="product-meta">
+          <span class="product-category">T-Shirt</span>
+          <span class="product-price">EGP 449</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Product 6 - Empty upload slot -->
+    <div class="product-card reveal" id="uploadSlot">
+      <div class="product-img" style="aspect-ratio:3/4; background: var(--surface); cursor:pointer;" onclick="triggerUpload()">
+        <input type="file" accept="image/*" id="newProductFile" onchange="fillSlot(this)" style="display:none">
+        <div class="product-img-placeholder">
+          <div class="upload-icon">+</div>
+          <span style="font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted)">Upload Photo</span>
+        </div>
+      </div>
+      <div class="product-info">
+        <div class="product-name" contenteditable="true" style="outline:none;opacity:0.4">PRODUCT NAME</div>
+        <div class="product-meta">
+          <span class="product-category" contenteditable="true" style="outline:none;opacity:0.4">Category</span>
+          <span class="product-price" contenteditable="true" style="outline:none">EGP 000</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- CATEGORIES -->
+<section class="categories" id="categories">
+  <div class="section-header reveal">
+    <div>
+      <div class="section-label">Shop by Type</div>
+      <div class="section-title">SHOP</div>
+    </div>
+  </div>
+  <div class="cat-grid reveal">
+    <a href="#" class="cat-item">
+      <div class="cat-bg" style="background: linear-gradient(135deg, #1c1c1c 0%, #0a0a0a 100%);"></div>
+      <div class="cat-overlay"></div>
+      <span class="cat-arrow">↗</span>
+      <div class="cat-label">
+        <span class="cat-name">T-SHIRTS</span>
+        <span class="cat-count">12 Styles Available</span>
+      </div>
+    </a>
+    <a href="#" class="cat-item">
+      <div class="cat-bg" style="background: linear-gradient(135deg, #1a0a0a 0%, #0d0000 100%);"></div>
+      <div class="cat-overlay"></div>
+      <span class="cat-arrow">↗</span>
+      <div class="cat-label">
+        <span class="cat-name">HOODIES</span>
+        <span class="cat-count">8 Styles Available</span>
+      </div>
+    </a>
+    <a href="#" class="cat-item">
+      <div class="cat-bg" style="background: linear-gradient(135deg, #111 0%, #0a0a0a 100%);"></div>
+      <div class="cat-overlay"></div>
+      <span class="cat-arrow">↗</span>
+      <div class="cat-label">
+        <span class="cat-name">PANTS</span>
+        <span class="cat-count">6 Styles Available</span>
+      </div>
+    </a>
+    <a href="#" class="cat-item">
+      <div class="cat-bg" style="background: linear-gradient(135deg, #0f0a05 0%, #090909 100%);"></div>
+      <div class="cat-overlay"></div>
+      <span class="cat-arrow">↗</span>
+      <div class="cat-label">
+        <span class="cat-name">JACKETS</span>
+        <span class="cat-count">5 Styles Available</span>
+      </div>
+    </a>
+    <a href="#" class="cat-item">
+      <div class="cat-bg" style="background: linear-gradient(135deg, #0a0a14 0%, #080808 100%);"></div>
+      <div class="cat-overlay"></div>
+      <span class="cat-arrow">↗</span>
+      <div class="cat-label">
+        <span class="cat-name">ACCESSORIES</span>
+        <span class="cat-count">15+ Items</span>
+      </div>
+    </a>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<div class="features reveal">
+  <div class="feature-item">
+    <span class="feature-icon">🚚</span>
+    <div class="feature-title">Free Delivery</div>
+    <div class="feature-desc">On all orders<br>above EGP 500</div>
+  </div>
+  <div class="feature-item">
+    <span class="feature-icon">↩</span>
+    <div class="feature-title">Easy Returns</div>
+    <div class="feature-desc">14-day return<br>policy</div>
+  </div>
+  <div class="feature-item">
+    <span class="feature-icon">🔒</span>
+    <div class="feature-title">Secure Pay</div>
+    <div class="feature-desc">Multiple payment<br>methods</div>
+  </div>
+  <div class="feature-item">
+    <span class="feature-icon">✦</span>
+    <div class="feature-title">Premium Quality</div>
+    <div class="feature-desc">Crafted for those<br>who demand more</div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer id="contact">
+  <div class="footer-top">
+    <div class="footer-brand">
+      <div class="logo"><span class="dot"></span>AXIS</div>
+      <p>Bold by design. Ruthless in craft. Wear what defines you.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Shop</h4>
+      <ul>
+        <li><a href="#">T-Shirts</a></li>
+        <li><a href="#">Hoodies</a></li>
+        <li><a href="#">Pants</a></li>
+        <li><a href="#">Jackets</a></li>
+        <li><a href="#">Accessories</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Info</h4>
+      <ul>
+        <li><a href="#">About AXIS</a></li>
+        <li><a href="#">Sizing Guide</a></li>
+        <li><a href="#">Returns</a></li>
+        <li><a href="#">Track Order</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Contact</h4>
+      <ul>
+        <li><a href="#">Instagram</a></li>
+        <li><a href="#">TikTok</a></li>
+        <li><a href="#">WhatsApp</a></li>
+        <li><a href="mailto:hello@axisbrand.com">Email Us</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-copy">© 2025 AXIS Brand. All rights reserved.</div>
+    <div class="social-links">
+      <a href="#">Instagram</a>
+      <a href="#">TikTok</a>
+      <a href="#">WhatsApp</a>
+    </div>
+  </div>
+</footer>
+
+<!-- CART MODAL -->
+<div class="modal-overlay" id="cartModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">×</button>
+    <h2>YOUR CART</h2>
+    <p>Items added to cart</p>
+    <div id="cartItems" style="margin-bottom:1.5rem;font-family:var(--font-mono);font-size:0.7rem;color:var(--muted);letter-spacing:0.1em;">
+      Your cart is empty.
+    </div>
+    <div class="modal-form">
+      <button onclick="closeModal()">Checkout →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Custom cursor
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  document.addEventListener('mousemove', e => {
+    cursor.style.left = e.clientX + 'px';
+    cursor.style.top = e.clientY + 'px';
+    setTimeout(() => {
+      ring.style.left = e.clientX + 'px';
+      ring.style.top = e.clientY + 'px';
+    }, 80);
+  });
+
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), i * 80);
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach(el => observer.observe(el));
+
+  // Image upload
+  function uploadImg(input) {
+    if (!input.files[0]) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const card = input.closest('.product-card');
+      const img = card.querySelector('img');
+      if (img) img.src = e.target.result;
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+
+  function triggerUpload() {
+    document.getElementById('newProductFile').click();
+  }
+
+  function fillSlot(input) {
+    if (!input.files[0]) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const slot = document.getElementById('uploadSlot');
+      const imgWrap = slot.querySelector('.product-img');
+      imgWrap.innerHTML = `
+        <input type="file" accept="image/*" onchange="uploadImg(this)">
+        <img src="${e.target.result}" alt="Product">
+        <button class="quick-add">+ Add to Cart</button>
+      `;
+      slot.querySelectorAll('[contenteditable]').forEach(el => el.style.opacity = '1');
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+
+  function addNewProduct(input) {
+    if (!input.files[0]) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const grid = document.getElementById('productGrid');
+      const card = document.createElement('div');
+      card.className = 'product-card reveal';
+      card.innerHTML = `
+        <div class="product-img">
+          <input type="file" accept="image/*" onchange="uploadImg(this)">
+          <img src="${e.target.result}" alt="New Product">
+          <span class="product-tag new">New</span>
+          <button class="quick-add">+ Add to Cart</button>
+        </div>
+        <div class="product-info">
+          <div class="product-name" contenteditable="true" style="outline:none">PRODUCT NAME</div>
+          <div class="product-meta">
+            <span class="product-category" contenteditable="true" style="outline:none">Category</span>
+            <span class="product-price" contenteditable="true" style="outline:none">EGP 000</span>
+          </div>
+        </div>
+      `;
+      grid.insertBefore(card, grid.lastElementChild);
+      setTimeout(() => card.classList.add('visible'), 100);
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+
+  // Cart modal
+  let cartCount = 0;
+  document.querySelectorAll('.quick-add').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      cartCount++;
+      document.querySelector('.nav-cart').textContent = `Cart (${cartCount})`;
+      btn.textContent = '✓ Added';
+      setTimeout(() => btn.textContent = '+ Add to Cart', 1500);
+    });
+  });
+
+  function openModal() { document.getElementById('cartModal').classList.add('open'); }
+  function closeModal() { document.getElementById('cartModal').classList.remove('open'); }
+  document.getElementById('cartModal').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeModal();
+  });
+</script>
+</body>
+</html>
