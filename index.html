@@ -744,10 +744,11 @@ window.loadProductsFromDB = async function() {
 // On page load
 window.addEventListener("load", async () => {
   if (typeof renderShop === "function") {
-   window.products = await loadProductsFromDB();
-    renderShop(products);
+    window.products = await loadProductsFromDB();
+    renderShop(window.products); ✅
   }
 });
+
 </script>
 
   <div id="imgModal" class="img-modal" onclick="closeSlider()">
