@@ -360,24 +360,32 @@ function renderShop(products){
 }
 
 function renderAdminList(){
-  const list=document.getElementById('adminProductList');
-  list.innerHTML='';
-  document.getElementById('adminProductCount').textContent=products.length;
-  products.forEach(p=>{
-    const card=document.createElement('div');
-    card.className='admin-card';
-    card.innerHTML=
-      '<img src="'+p.img+'" alt="'+p.name+'">'+
-      '<div class="admin-card-info">'+
-        '<div class="admin-card-name">'+p.name+'</div>'+
-        '<div class="admin-card-meta">'+p.category+(p.tag?' · '+p.tag:'')+'</div>'+
-        '<div class="admin-card-price">'+
-          (p.oldPrice?'<span class="old-price">'+p.oldPrice+' EGP</span> ':'')+
-          '<span class="new-price">'+p.price+' EGP</span>'+
-        '</div>'+
-      '</div>'+
-      '<button class="admin-delete-btn" onclick="deleteProduct('+p.id+')">🗑 Delete Product</button>';
-    list.appendChild(card);
+  const list = document.getElementById('adminProductList');
+  list.innerHTML = '';
+
+  loadProductsFromDB().then(products => {
+
+    document.getElementById('adminProductCount').textContent = products.length;
+
+    products.forEach(p => {
+      const card = document.createElement('div');
+      card.className = 'admin-card';
+
+      card.innerHTML =
+        '<img src="'+p.img+'" alt="'+p.name+'">' +
+        '<div class="admin-card-info">' +
+          '<div class="admin-card-name">'+p.name+'</div>' +
+          '<div class="admin-card-meta">'+p.category+(p.tag?' · '+p.tag:'')+'</div>' +
+          '<div class="admin-card-price">' +
+            (p.oldPrice ? '<span class="old-price">'+p.oldPrice+' EGP</span> ' : '') +
+            '<span class="new-price">'+p.price+' EGP</span>' +
+          '</div>' +
+        '</div>' +
+        '<button class="admin-delete-btn" onclick="deleteProduct('+p.id+')">🗑 Delete Product</button>';
+
+      list.appendChild(card);
+    });
+
   });
 }
 
