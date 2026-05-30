@@ -397,7 +397,7 @@ window.prevImgModal = function(){
   document.getElementById("modalImg").src = modalImgs[modalIndex];
 };
   
-function renderShop(products){
+function renderShop(window.products){
   const grid=document.getElementById('productGrid');
   allProducts = products;
   grid.innerHTML='';
@@ -600,7 +600,7 @@ function addAdminProduct(){
   img: newImgData[0]
 });
   loadProductsFromDB().then(products => {
-  renderShop(products);
+  renderShop(window.products);
 });
 
   renderAdminList();
@@ -682,7 +682,7 @@ window.deleteProduct = async function(id) {
     await Promise.all(promises);
     alert("✅ Deleted");
     const products = await loadProductsFromDB();
-    renderShop(products);
+    renderShop(window.products);
     renderAdminList();
   } catch (err) {
     console.error(err);
@@ -718,7 +718,7 @@ window.uploadAndSaveProduct = async function(productData, imageFiles) {
     productData.img = urls[0];
     await saveProductToDB(productData);
     const products = await loadProductsFromDB();
-    renderShop(products);
+    renderShop(window.products);
     renderAdminList();
   } catch (err) {
     console.error(err);
