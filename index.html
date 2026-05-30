@@ -359,7 +359,7 @@ const DEFAULT_PRODUCTS = [
 ];
 let products = [];
 let cart = [];
-// newImgData replaced by newImgFiles (File objects)
+let newImgData = '';
 
 function saveProducts(){try{localStorage.setItem('axisProducts',JSON.stringify(products));}catch(e){}}
 function loadProducts(){
@@ -539,25 +539,37 @@ function exitAdmin(){
   history.replaceState(null,'',window.location.pathname);
 }
 
-let newImgFiles = [];
-
 function previewAdminImg(input){
   if(!input.files.length)return;
+
   const files = Array.from(input.files);
-  newImgFiles = files;
+
+  newImgData = new Array(files.length);
+
   const container=document.getElementById('adminImgPreviewContainer');
   container.innerHTML='';
-  files.forEach((file)=>{
+
+  files.forEach((file,index)=>{
     const reader=new FileReader();
+
     reader.onload=e=>{
+      newImgData[index]=e.target.result;
+
       const img=document.createElement('img');
       img.src=e.target.result;
       img.className='admin-img-preview';
       img.style.display='block';
-      container.appendChild(img);
+
+      if(container.children[index]){
+        container.insertBefore(img, container.children[index]);
+      }else{
+        container.appendChild(img);
+      }
     };
+
     reader.readAsDataURL(file);
   });
+
   document.getElementById('adminImgLabel').textContent='Photos ready!';
 }
 
@@ -568,27 +580,40 @@ function addAdminProduct(){
   const category=document.getElementById('newCategory').value.trim();
   const tag=document.getElementById('newTag').value;
 
-  if(!name||!price||!category||!newImgFiles||!newImgFiles.length){
+  if(!name||!price||!category||!newImgData||!newImgData.length){
     alert('Please fill all fields and upload photos');
     return;
   }
 
-  const productData = {
-    id: Date.now(),
-    name, category, price, oldPrice, tag
-  };
+  // ✅ بدل localStorage → Firebase
+  saveProductToDB({
+  id: Date.now(),
+  name,
+  category,
+  price,
+  oldPrice,
+  tag,
+  imgs: newImgData,
+  img: newImgData[0]
+});
+  loadProductsFromDB().then(products => {
+  renderShop(products);
+});
 
-  uploadAndSaveProduct(productData, newImgFiles);
+  renderAdminList();
 
   document.getElementById('newName').value='';
   document.getElementById('newPrice').value='';
   document.getElementById('newCategory').value='';
   document.getElementById('newTag').value='';
-  document.getElementById('adminImgPreview').style.display='none';
+
+  // adminImgPreview removed (not needed)
   document.getElementById('adminImgLabel').textContent='Click to upload product photo';
   document.getElementById('adminImgInput').value='';
   document.getElementById('adminImgPreviewContainer').innerHTML='';
-  newImgFiles=[];
+  newImgData=[];
+
+  alert('Product added!');
 }
 
 
@@ -605,9 +630,7 @@ const obs=new IntersectionObserver(entries=>{
 },{threshold:0.1});
 
 loadProducts();
-loadProductsFromDB().then(products => {
-  renderShop(products);
-});
+// loadProductsFromDB is called from module after load
 
 document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
 </script>
@@ -625,11 +648,9 @@ import {
   getStorage,
   ref,
   uploadBytes,
-  getDownloadURL,
-  deleteObject
+  getDownloadURL
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
-// ✅ Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyC84m40p3e9Ekpt2mV5SjpqmMvr7ONBEBo",
   authDomain: "axis-project-website.firebaseapp.com",
@@ -640,69 +661,61 @@ const firebaseConfig = {
   measurementId: "G-F6HFBC3EBG"
 };
 
-// ✅ Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-// ✅ Upload image file to Firebase Storage and return download URL
-async function uploadImageToStorage(file, productId, index) {
-  const storageRef = ref(storage, `products/${productId}_${index}_${file.name}`);
-  await uploadBytes(storageRef, file);
-  const url = await getDownloadURL(storageRef);
-  return url;
-}
-
-// ✅ Delete product
+// Delete product
 window.deleteProduct = async function(id) {
   if (!confirm("Delete this product?")) return;
   try {
     const snapshot = await getDocs(collection(db, "products"));
-    snapshot.forEach(async (item) => {
+    const promises = [];
+    snapshot.forEach((item) => {
       if (String(item.data().id) === String(id)) {
-        await deleteDoc(doc(db, "products", item.id));
+        promises.push(deleteDoc(doc(db, "products", item.id)));
       }
     });
+    await Promise.all(promises);
     alert("✅ Deleted");
-    loadProductsFromDB().then(products => {
-      renderShop(products);
-      renderAdminList();
-    });
+    const products = await loadProductsFromDB();
+    renderShop(products);
+    renderAdminList();
   } catch (err) {
     console.error(err);
     alert(err.message);
   }
 };
 
-// ✅ Save product to Firestore (URLs only, no base64)
+// Save product URLs to Firestore
 window.saveProductToDB = async function(product) {
   try {
     await addDoc(collection(db, "products"), product);
-    alert("✅ Product Saved");
+    alert("✅ Product Saved!");
   } catch (err) {
     console.error(err);
-    alert("❌ Error saving product: " + err.message);
+    alert("❌ Error saving: " + err.message);
   }
 };
 
-// ✅ Upload images then save product — called from addAdminProduct
+// Upload images to Storage then save to Firestore
 window.uploadAndSaveProduct = async function(productData, imageFiles) {
   const btn = document.querySelector('.admin-add-btn');
-  if (btn) { btn.disabled = true; btn.textContent = 'Uploading...'; }
-
+  if (btn) { btn.disabled = true; btn.textContent = 'Uploading... Please wait'; }
   try {
-    const productId = productData.id;
     const urls = [];
     for (let i = 0; i < imageFiles.length; i++) {
-      const url = await uploadImageToStorage(imageFiles[i], productId, i);
+      const file = imageFiles[i];
+      const storageRef = ref(storage, 'products/' + productData.id + '_' + i + '_' + file.name);
+      await uploadBytes(storageRef, file);
+      const url = await getDownloadURL(storageRef);
       urls.push(url);
     }
     productData.imgs = urls;
     productData.img = urls[0];
     await saveProductToDB(productData);
-    loadProductsFromDB().then(products => {
-      renderShop(products);
-    });
+    const products = await loadProductsFromDB();
+    renderShop(products);
     renderAdminList();
   } catch (err) {
     console.error(err);
@@ -712,22 +725,24 @@ window.uploadAndSaveProduct = async function(productData, imageFiles) {
   }
 };
 
-// ✅ Load all products from Firestore
+// Load products from Firestore
 window.loadProductsFromDB = async function() {
-  const snapshot = await getDocs(collection(db, "products"));
-  let products = [];
-  snapshot.forEach(d => {
-    products.push({ id: d.id, ...d.data() });
-  });
-  return products;
+  try {
+    const snapshot = await getDocs(collection(db, "products"));
+    const products = [];
+    snapshot.forEach(d => { products.push({ id: d.id, ...d.data() }); });
+    return products;
+  } catch (err) {
+    console.error("Load error:", err);
+    return [];
+  }
 };
 
-// ✅ On page load
-window.addEventListener("load", () => {
+// On page load
+window.addEventListener("load", async () => {
   if (typeof renderShop === "function") {
-    loadProductsFromDB().then(products => {
-      renderShop(products);
-    });
+    const products = await loadProductsFromDB();
+    renderShop(products);
   }
 });
 </script>
