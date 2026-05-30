@@ -327,7 +327,35 @@ function loadProducts(){
   }catch(e){products=JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));}
 }
 
+let allProducts = [];
+const currentImgIndex = {};
+
+window.nextImg = function(id){
+  const product = allProducts.find(p => p.id === id);
+  if (!currentImgIndex[id]) currentImgIndex[id] = 0;
+
+  currentImgIndex[id]++;
+  if(currentImgIndex[id] >= product.imgs.length){
+    currentImgIndex[id] = 0;
+  }
+
+  document.getElementById("img-"+id).src = product.imgs[currentImgIndex[id]];
+};
+
+window.prevImg = function(id){
+  const product = allProducts.find(p => p.id === id);
+  if (!currentImgIndex[id]) currentImgIndex[id] = 0;
+
+  currentImgIndex[id]--;
+  if(currentImgIndex[id] < 0){
+    currentImgIndex[id] = product.imgs.length - 1;
+  }
+
+  document.getElementById("img-"+id).src = product.imgs[currentImgIndex[id]];
+};
+  
 function renderShop(products){
+  allProducts = products;
   const grid=document.getElementById('productGrid');
   grid.innerHTML='';
   products.forEach(p=>{
@@ -335,8 +363,15 @@ function renderShop(products){
     card.className='product-card';
     card.innerHTML=
       '<div class="product-img">'+
-        '<img src="'+p.img+'" alt="'+p.name+'">'+
-        (p.tag?'<span class="product-tag">'+p.tag+'</span>':'')+
+      '<div class="product-slider">'+
+        '<img src="'+p.imgs[0]+'" id="img-'+p.id+'">'+
+        (p.imgs.length > 1 ?
+          '<button class="slider-btn left" onclick="prevImg('+p.id+')">‹</button>'+
+          '<button class="slider-btn right" onclick="nextImg('+p.id+')">›</button>'
+        : ''
+        )+
+      '</div>'+ 
+      (p.tag?'<span class="product-tag">'+p.tag+'</span>':'')+
         '<button class="quick-add" onclick="addToCart('+p.id+',this)">+ Add to Cart</button>'+
       '</div>'+
       '<div class="product-info">'+
