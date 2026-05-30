@@ -6,6 +6,42 @@
 <title>AXIS — The Brand</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
+  .img-modal{
+  display:none;
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.9);
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
+}
+
+.img-modal img{
+  max-width:90%;
+  max-height:80%;
+}
+
+.img-modal button{
+  position:absolute;
+  top:50%;
+  transform:translateY(-50%);
+  background:black;
+  color:white;
+  border:none;
+  padding:10px;
+  cursor:pointer;
+}
+
+.img-modal button:first-of-type{
+  left:20px;
+}
+
+.img-modal button:last-of-type{
+  right:20px;
+}
 :root{--red:#8B0000;--red-bright:#CC0000;--black:#080808;--off-black:#111111;--surface:#161616;--border:#222222;--white:#F5F0EB;--muted:#666666;}
 *{margin:0;padding:0;box-sizing:border-box;}
 html{scroll-behavior:smooth;}
@@ -327,35 +363,35 @@ function loadProducts(){
   }catch(e){products=JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));}
 }
 
-let allProducts = [];
-const currentImgIndex = {};
+let modalImgs = [];
+let modalIndex = 0;
 
-window.nextImg = function(id){
+window.openSlider = function(id){
   const product = allProducts.find(p => p.id === id);
-  if (!currentImgIndex[id]) currentImgIndex[id] = 0;
+  modalImgs = product.imgs || [product.img];
+  modalIndex = 0;
 
-  currentImgIndex[id]++;
-  if(currentImgIndex[id] >= product.imgs.length){
-    currentImgIndex[id] = 0;
-  }
-
-  document.getElementById("img-"+id).src = product.imgs[currentImgIndex[id]];
+  document.getElementById("imgModal").style.display = "flex";
+  document.getElementById("modalImg").src = modalImgs[0];
 };
 
-window.prevImg = function(id){
-  const product = allProducts.find(p => p.id === id);
-  if (!currentImgIndex[id]) currentImgIndex[id] = 0;
+window.closeSlider = function(){
+  document.getElementById("imgModal").style.display = "none";
+};
 
-  currentImgIndex[id]--;
-  if(currentImgIndex[id] < 0){
-    currentImgIndex[id] = product.imgs.length - 1;
-  }
+window.nextImgModal = function(){
+  modalIndex++;
+  if(modalIndex >= modalImgs.length) modalIndex = 0;
+  document.getElementById("modalImg").src = modalImgs[modalIndex];
+};
 
-  document.getElementById("img-"+id).src = product.imgs[currentImgIndex[id]];
+window.prevImgModal = function(){
+  modalIndex--;
+  if(modalIndex < 0) modalIndex = modalImgs.length - 1;
+  document.getElementById("modalImg").src = modalImgs[modalIndex];
 };
   
 function renderShop(products){
-  allProducts = products;
   const grid=document.getElementById('productGrid');
   grid.innerHTML='';
   products.forEach(p=>{
@@ -363,14 +399,7 @@ function renderShop(products){
     card.className='product-card';
     card.innerHTML=
       '<div class="product-img">'+
-      '<div class="product-slider">'+
-        '<img src="'+p.imgs[0]+'" id="img-'+p.id+'">'+
-        (p.imgs.length > 1 ?
-          '<button class="slider-btn left" onclick="prevImg('+p.id+')">‹</button>'+
-          '<button class="slider-btn right" onclick="nextImg('+p.id+')">›</button>'
-        : ''
-        )+
-      '</div>'+ 
+     '<img src="'+(p.imgs && p.imgs.length ? p.imgs[0] : p.img)+'" alt="'+p.name+'" onclick="openSlider('+p.id+')">'
       (p.tag?'<span class="product-tag">'+p.tag+'</span>':'')+
         '<button class="quick-add" onclick="addToCart('+p.id+',this)">+ Add to Cart</button>'+
       '</div>'+
@@ -668,5 +697,11 @@ window.addEventListener("load", () => {
   }
 });
 </script>
+
+  <div id="imgModal" class="img-modal" onclick="closeSlider()">
+  <img id="modalImg">
+  <button onclick="event.stopPropagation(); prevImgModal()">‹</button>
+  <button onclick="event.stopPropagation(); nextImgModal()">›</button>
+</div>
 </body>
 </html>
