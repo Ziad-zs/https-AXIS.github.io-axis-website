@@ -467,7 +467,10 @@ function selectSize(btn){
 }
 
 function addToCart(id,btn){
+
   const p=products.find(x=>x.id===id);
+    console.log("id:", id);
+console.log("products:", products);
   if(!p)return;
   const card=btn.closest('.product-card');
   const active=card.querySelector('.size-btn.active');
