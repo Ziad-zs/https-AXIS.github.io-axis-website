@@ -359,7 +359,7 @@ const DEFAULT_PRODUCTS = [
 ];
 let products = [];
 let cart = [];
-let newImgData = '';
+// newImgData replaced by newImgFiles (File objects)
 
 function saveProducts(){try{localStorage.setItem('axisProducts',JSON.stringify(products));}catch(e){}}
 function loadProducts(){
@@ -539,37 +539,25 @@ function exitAdmin(){
   history.replaceState(null,'',window.location.pathname);
 }
 
+let newImgFiles = [];
+
 function previewAdminImg(input){
   if(!input.files.length)return;
-
   const files = Array.from(input.files);
-
-  newImgData = new Array(files.length);
-
+  newImgFiles = files;
   const container=document.getElementById('adminImgPreviewContainer');
   container.innerHTML='';
-
-  files.forEach((file,index)=>{
+  files.forEach((file)=>{
     const reader=new FileReader();
-
     reader.onload=e=>{
-      newImgData[index]=e.target.result;
-
       const img=document.createElement('img');
       img.src=e.target.result;
       img.className='admin-img-preview';
       img.style.display='block';
-
-      if(container.children[index]){
-        container.insertBefore(img, container.children[index]);
-      }else{
-        container.appendChild(img);
-      }
+      container.appendChild(img);
     };
-
     reader.readAsDataURL(file);
   });
-
   document.getElementById('adminImgLabel').textContent='Photos ready!';
 }
 
@@ -580,40 +568,27 @@ function addAdminProduct(){
   const category=document.getElementById('newCategory').value.trim();
   const tag=document.getElementById('newTag').value;
 
-  if(!name||!price||!category||!newImgData||!newImgData.length){
+  if(!name||!price||!category||!newImgFiles||!newImgFiles.length){
     alert('Please fill all fields and upload photos');
     return;
   }
 
-  // ✅ بدل localStorage → Firebase
-  saveProductToDB({
-  id: Date.now(),
-  name,
-  category,
-  price,
-  oldPrice,
-  tag,
-  imgs: newImgData,
-  img: newImgData[0]
-});
-  loadProductsFromDB().then(products => {
-  renderShop(products);
-});
+  const productData = {
+    id: Date.now(),
+    name, category, price, oldPrice, tag
+  };
 
-  renderAdminList();
+  uploadAndSaveProduct(productData, newImgFiles);
 
   document.getElementById('newName').value='';
   document.getElementById('newPrice').value='';
   document.getElementById('newCategory').value='';
   document.getElementById('newTag').value='';
-
   document.getElementById('adminImgPreview').style.display='none';
   document.getElementById('adminImgLabel').textContent='Click to upload product photo';
   document.getElementById('adminImgInput').value='';
   document.getElementById('adminImgPreviewContainer').innerHTML='';
-  newImgData=[];
-
-  alert('Product added!');
+  newImgFiles=[];
 }
 
 
@@ -639,13 +614,21 @@ document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
   <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import {
-  getFirestore, 
-  collection, 
-  addDoc, 
-  getDocs, 
-  deleteDoc, 
-  doc 
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs,
+  deleteDoc,
+  doc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import {
+  getStorage,
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+
 // ✅ Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyC84m40p3e9Ekpt2mV5SjpqmMvr7ONBEBo",
@@ -660,61 +643,86 @@ const firebaseConfig = {
 // ✅ Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const storage = getStorage(app);
 
-//delete
-    window.deleteProduct = async function(id){
-  if(!confirm("Delete this product?")) return;
+// ✅ Upload image file to Firebase Storage and return download URL
+async function uploadImageToStorage(file, productId, index) {
+  const storageRef = ref(storage, `products/${productId}_${index}_${file.name}`);
+  await uploadBytes(storageRef, file);
+  const url = await getDownloadURL(storageRef);
+  return url;
+}
 
+// ✅ Delete product
+window.deleteProduct = async function(id) {
+  if (!confirm("Delete this product?")) return;
   try {
     const snapshot = await getDocs(collection(db, "products"));
-
     snapshot.forEach(async (item) => {
-      if(String(item.data().id) === String(id)){
+      if (String(item.data().id) === String(id)) {
         await deleteDoc(doc(db, "products", item.id));
       }
     });
-
     alert("✅ Deleted");
-
     loadProductsFromDB().then(products => {
       renderShop(products);
       renderAdminList();
     });
-
-  } catch(err) {
+  } catch (err) {
     console.error(err);
     alert(err.message);
   }
 };
 
-
-
-
-    
-// ✅ حفظ المنتج في الداتابيس
+// ✅ Save product to Firestore (URLs only, no base64)
 window.saveProductToDB = async function(product) {
   try {
     await addDoc(collection(db, "products"), product);
     alert("✅ Product Saved");
   } catch (err) {
     console.error(err);
-    alert("❌ Error saving product");
+    alert("❌ Error saving product: " + err.message);
   }
 };
 
-// ✅ تحميل كل المنتجات من الداتابيس
+// ✅ Upload images then save product — called from addAdminProduct
+window.uploadAndSaveProduct = async function(productData, imageFiles) {
+  const btn = document.querySelector('.admin-add-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Uploading...'; }
+
+  try {
+    const productId = productData.id;
+    const urls = [];
+    for (let i = 0; i < imageFiles.length; i++) {
+      const url = await uploadImageToStorage(imageFiles[i], productId, i);
+      urls.push(url);
+    }
+    productData.imgs = urls;
+    productData.img = urls[0];
+    await saveProductToDB(productData);
+    loadProductsFromDB().then(products => {
+      renderShop(products);
+    });
+    renderAdminList();
+  } catch (err) {
+    console.error(err);
+    alert("❌ Upload failed: " + err.message);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '+ Add Product to Store'; }
+  }
+};
+
+// ✅ Load all products from Firestore
 window.loadProductsFromDB = async function() {
   const snapshot = await getDocs(collection(db, "products"));
   let products = [];
-
-  snapshot.forEach(doc => {
-    products.push({ id: doc.id, ...doc.data() });
+  snapshot.forEach(d => {
+    products.push({ id: d.id, ...d.data() });
   });
-
   return products;
 };
 
-// ✅ أول ما الصفحة تفتح
+// ✅ On page load
 window.addEventListener("load", () => {
   if (typeof renderShop === "function") {
     loadProductsFromDB().then(products => {
