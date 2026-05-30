@@ -212,7 +212,7 @@ footer{background:var(--off-black);padding:4rem 2.5rem 2rem;border-top:1px solid
       <p class="footer-tagline">Style is not just clothing — it is your identity.</p>
     </div>
     <div class="footer-col"><h4>Shop</h4><ul><li><a href="#products">T-Shirts</a></li><li><a href="#products">New Drops</a></li></ul></div>
-    <div class="footer-col"><h4>Contact</h4><ul><li><a href="https://wa.me/2">WhatsApp</a></li><li><a href="#">Instagram</a></li><li><a href="#">TikTok</a></li></ul></div>
+    <div class="footer-col"><h4>Contact</h4><ul><li><a href="https://wa.me/201228896855">WhatsApp</a></li><li><a href="#">Instagram</a></li><li><a href="#">TikTok</a></li></ul></div>
   </div>
   <div class="footer-bottom"><div class="footer-copy">© 2025 AXIS Brand. All rights reserved.</div></div>
 </footer>
@@ -441,22 +441,30 @@ function exitAdmin(){
 
 function previewAdminImg(input){
   if(!input.files.length)return;
-  newImgData=[];
+
+  const files = Array.from(input.files);
+
+  newImgData = new Array(files.length);
+
   const container=document.getElementById('adminImgPreviewContainer');
   container.innerHTML='';
 
-  Array.from(input.files).forEach(file=>{
+  files.forEach((file,index)=>{
     const reader=new FileReader();
 
     reader.onload=e=>{
-      newImgData.push(e.target.result);
+      newImgData[index]=e.target.result;
 
       const img=document.createElement('img');
       img.src=e.target.result;
       img.className='admin-img-preview';
       img.style.display='block';
 
-      container.appendChild(img);
+      if(container.children[index]){
+        container.insertBefore(img, container.children[index]);
+      }else{
+        container.appendChild(img);
+      }
     };
 
     reader.readAsDataURL(file);
