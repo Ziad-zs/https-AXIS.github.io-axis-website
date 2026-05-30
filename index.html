@@ -615,15 +615,30 @@ function addAdminProduct(){
 
   alert('Product added!');
 }
-function deleteProduct(id){
-  if(!confirm('Delete this product from the store?'))return;
-  products=products.filter(p=>p.id!==id);
+window.deleteProduct = async function(id){
+  if(!confirm("Delete this product?")) return;
 
-  loadProductsFromDB().then(products => {
-  renderShop(products);
-});
-;renderAdminList();
-}
+  try {
+    const snapshot = await getDocs(collection(db, "products"));
+
+    snapshot.forEach(async (item) => {
+      if(item.data().id === id){
+        await deleteDoc(doc(db, "products", item.id));
+      }
+    });
+
+    alert("✅ Deleted");
+
+    loadProductsFromDB().then(products => {
+      renderShop(products);
+      renderAdminList();
+    });
+
+  } catch(err) {
+    console.error(err);
+    alert("❌ Error");
+  }
+};
 
 function checkHash(){
   if(window.location.hash==='#admin'){
@@ -646,8 +661,14 @@ document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
 </script>
   <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
+import {
+  getFirestore, 
+  collection, 
+  addDoc, 
+  getDocs, 
+  deleteDoc, 
+  doc 
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 // ✅ Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyC84m40p3e9Ekpt2mV5SjpqmMvr7ONBEBo",
