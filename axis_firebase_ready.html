@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='UTF-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<title>AXIS Store Firebase Version</title>
+<style>
+body{background:#080808;color:#fff;font-family:sans-serif;text-align:center;padding:50px}
+button{padding:10px 20px;margin:10px;font-size:16px;cursor:pointer}
+.card{border:1px solid #444;padding:10px;margin:10px}
+</style>
+</head>
+<body>
+
+<h1>AXIS STORE (Firebase Connected)</h1>
+
+<button onclick="addProduct()">Add Test Product</button>
+<button onclick="loadProducts()">Load Products</button>
+
+<div id="products"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC84m40p3e9Ekpt2mV5SjpqmMvr7ONBEBo",
+  authDomain: "axis-project-website.firebaseapp.com",
+  projectId: "axis-project-website",
+  storageBucket: "axis-project-website.firebasestorage.app",
+  messagingSenderId: "946736261661",
+  appId: "1:946736261661:web:eeea141f2c817f9500f4f4",
+  measurementId: "G-F6HFBC3EBG"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+window.addProduct = async function() {
+  await addDoc(collection(db, "products"), {
+    name: "AXIS TEST PRODUCT",
+    price: 250
+  });
+  alert("✅ Product Added");
+};
+
+window.loadProducts = async function() {
+  const snapshot = await getDocs(collection(db, "products"));
+  let html = "";
+
+  snapshot.forEach(doc => {
+    const data = doc.data();
+    html += `<div class='card'>
+<h3>${data.name}</h3>
+<p>${data.price} EGP</p>
+</div>`;
+  });
+
+  document.getElementById("products").innerHTML = html;
+};
+</script>
+
+</body>
+</html>
