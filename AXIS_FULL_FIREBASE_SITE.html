@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='UTF-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<title>AXIS Store</title>
+<style>
+body{background:#080808;color:#fff;font-family:sans-serif;margin:0}
+header{padding:20px;text-align:center;font-size:28px}
+.products{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;padding:20px}
+.card{border:1px solid #333;padding:15px;text-align:center}
+button{padding:8px 12px;cursor:pointer;margin-top:10px;background:#cc0000;color:#fff;border:none}
+.admin{padding:20px;border-top:2px solid #222}
+input{padding:8px;margin:5px;width:200px}
+</style>
+</head>
+<body>
+
+<header>AXIS STORE ✅ (Firebase Live)</header>
+
+<div class="products" id="products"></div>
+
+<div class="admin">
+<h2>Admin Panel</h2>
+<input id="name" placeholder="Product Name"><br>
+<input id="price" placeholder="Price"><br>
+<button onclick="addProduct()">Add Product</button>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC84m40p3e9Ekpt2mV5SjpqmMvr7ONBEBo",
+  authDomain: "axis-project-website.firebaseapp.com",
+  projectId: "axis-project-website",
+  storageBucket: "axis-project-website.firebasestorage.app",
+  messagingSenderId: "946736261661",
+  appId: "1:946736261661:web:eeea141f2c817f9500f4f4",
+  measurementId: "G-F6HFBC3EBG"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+window.addProduct = async function() {
+  const name = document.getElementById("name").value;
+  const price = document.getElementById("price").value;
+
+  if (!name || !price) return alert("Fill data");
+
+  await addDoc(collection(db, "products"), {
+    name: name,
+    price: price
+  });
+
+  alert("✅ Added");
+  loadProducts();
+};
+
+window.loadProducts = async function() {
+  const snapshot = await getDocs(collection(db, "products"));
+  let html = "";
+
+  snapshot.forEach(doc => {
+    const d = doc.data();
+    html += `<div class='card'>
+<h3>${d.name}</h3>
+<p>${d.price} EGP</p>
+</div>`;
+  });
+
+  document.getElementById("products").innerHTML = html;
+};
+
+loadProducts();
+</script>
+
+</body>
+</html>
