@@ -622,7 +622,7 @@ window.deleteProduct = async function(id){
     const snapshot = await getDocs(collection(db, "products"));
 
     snapshot.forEach(async (item) => {
-      if(item.data().id === id){
+      if(String(item.data().id) === String(id)){
         await deleteDoc(doc(db, "products", item.id));
       }
     });
@@ -636,7 +636,7 @@ window.deleteProduct = async function(id){
 
   } catch(err) {
     console.error(err);
-    alert("❌ Error");
+    alert(err.message);
   }
 };
 
