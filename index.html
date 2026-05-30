@@ -468,15 +468,20 @@ function selectSize(btn){
 
 function addToCart(id,btn){
 
-   const p = window.products.find(x => x.id == id);
-    console.log("id:", id);
-console.log("products:", products);
-  if(!p)return;
-  const card=btn.closest('.product-card');
-  const active=card.querySelector('.size-btn.active');
-  const size=active?active.textContent:'M';
-  cart.push({...p,size,uid:Date.now()});
-  updateCart();openCart();
+  const p = window.products.find(x => x.id == id);
+
+  console.log("id:", id);
+  console.log("products:", window.products);
+
+  if(!p) return;
+
+  const card = btn.closest('.product-card');
+  const active = card.querySelector('.size-btn.active');
+  const size = active ? active.textContent : 'M';
+
+  cart.push({...p, size, uid: Date.now()});
+  updateCart();
+  openCart();
 }
 
 function updateCart(){
@@ -745,7 +750,7 @@ window.loadProductsFromDB = async function() {
 window.addEventListener("load", async () => {
   if (typeof renderShop === "function") {
     window.products = await loadProductsFromDB();
-    renderShop(window.products); ✅
+    renderShop(window.products); 
   }
 });
 
