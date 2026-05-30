@@ -160,7 +160,21 @@ footer{background:var(--off-black);padding:4rem 2.5rem 2rem;border-top:1px solid
   section.products{padding:3rem 1.2rem;}
   .admin-fields{grid-template-columns:1fr;}
 }
+  
+.old-price{
+text-decoration:line-through;
+color:#888;
+font-size:14px;
+margin-right:8px;
+}
 
+.new-price{
+color:#e63946;
+font-size:18px;
+font-weight:bold;
+}
+
+/* ===== IMAGE POPUP ===== */
 
 .img-modal{
   display:none;
@@ -178,15 +192,17 @@ footer{background:var(--off-black);padding:4rem 2.5rem 2rem;border-top:1px solid
 .img-modal img{
   max-width:90%;
   max-height:80%;
+  border-radius:10px;
 }
 
 .img-modal button{
   position:absolute;
   top:50%;
   transform:translateY(-50%);
-  background:black;
+  background:rgba(0,0,0,0.7);
   color:white;
   border:none;
+  font-size:25px;
   padding:10px;
   cursor:pointer;
 }
@@ -198,20 +214,8 @@ footer{background:var(--off-black);padding:4rem 2.5rem 2rem;border-top:1px solid
 .img-modal button:last-of-type{
   right:20px;
 }
+
   
-.old-price{
-text-decoration:line-through;
-color:#888;
-font-size:14px;
-margin-right:8px;
-}
-
-.new-price{
-color:#e63946;
-font-size:18px;
-font-weight:bold;
-}
-
 </style>
 </head>
 <body>
@@ -395,14 +399,15 @@ window.prevImgModal = function(){
   
 function renderShop(products){
   const grid=document.getElementById('productGrid');
+  allProducts = products;
   grid.innerHTML='';
   products.forEach(p=>{
     const card=document.createElement('div');
     card.className='product-card';
     card.innerHTML=
-      '<div class="product-img">'+
-     '<img src="'+(p.imgs && p.imgs.length ? p.imgs[0] : p.img)+'" alt="'+p.name+'" onclick="openSlider('+p.id+')">'+
-      (p.tag?'<span class="product-tag">'+p.tag+'</span>':'')+
+     '<div class="product-img">'+
+        '<img src="'+p.img+'" alt="'+p.name+'" onclick="openSlider('+p.id+')">'+
+        (p.tag?'<span class="product-tag">'+p.tag+'</span>':'')+
         '<button class="quick-add" onclick="addToCart('+p.id+',this)">+ Add to Cart</button>'+
       '</div>'+
       '<div class="product-info">'+
