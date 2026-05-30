@@ -615,30 +615,7 @@ function addAdminProduct(){
 
   alert('Product added!');
 }
-window.deleteProduct = async function(id){
-  if(!confirm("Delete this product?")) return;
 
-  try {
-    const snapshot = await getDocs(collection(db, "products"));
-
-    snapshot.forEach(async (item) => {
-      if(String(item.data().id) === String(id)){
-        await deleteDoc(doc(db, "products", item.id));
-      }
-    });
-
-    alert("✅ Deleted");
-
-    loadProductsFromDB().then(products => {
-      renderShop(products);
-      renderAdminList();
-    });
-
-  } catch(err) {
-    console.error(err);
-    alert(err.message);
-  }
-};
 
 function checkHash(){
   if(window.location.hash==='#admin'){
@@ -684,6 +661,36 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+//delete
+    window.deleteProduct = async function(id){
+  if(!confirm("Delete this product?")) return;
+
+  try {
+    const snapshot = await getDocs(collection(db, "products"));
+
+    snapshot.forEach(async (item) => {
+      if(String(item.data().id) === String(id)){
+        await deleteDoc(doc(db, "products", item.id));
+      }
+    });
+
+    alert("✅ Deleted");
+
+    loadProductsFromDB().then(products => {
+      renderShop(products);
+      renderAdminList();
+    });
+
+  } catch(err) {
+    console.error(err);
+    alert(err.message);
+  }
+};
+
+
+
+
+    
 // ✅ حفظ المنتج في الداتابيس
 window.saveProductToDB = async function(product) {
   try {
