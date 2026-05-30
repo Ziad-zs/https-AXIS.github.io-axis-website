@@ -618,16 +618,7 @@ function addAdminProduct(){
 function deleteProduct(id){
   if(!confirm('Delete this product from the store?'))return;
   products=products.filter(p=>p.id!==id);
- saveProductToDB({
-  id: Date.now(),
-  name,
-  category,
-  price,
-  oldPrice,
-  tag,
-  imgs: newImgData,
-  img: newImgData[0]
-});
+
   loadProductsFromDB().then(products => {
   renderShop(products);
 });
