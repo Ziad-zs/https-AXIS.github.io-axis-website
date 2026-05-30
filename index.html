@@ -615,8 +615,24 @@ function addAdminProduct(){
 
   alert('Product added!');
 }
-
- 
+function deleteProduct(id){
+  if(!confirm('Delete this product from the store?'))return;
+  products=products.filter(p=>p.id!==id);
+ saveProductToDB({
+  id: Date.now(),
+  name,
+  category,
+  price,
+  oldPrice,
+  tag,
+  imgs: newImgData,
+  img: newImgData[0]
+});
+  loadProductsFromDB().then(products => {
+  renderShop(products);
+});
+;renderAdminList();
+}
 
 function checkHash(){
   if(window.location.hash==='#admin'){
@@ -636,17 +652,10 @@ loadProductsFromDB().then(products => {
 });
 
 document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
-<script type="module">
+</script>
+  <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-
-import { 
-  getFirestore, 
-  collection, 
-  addDoc, 
-  getDocs, 
-  deleteDoc, 
-  doc 
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // ✅ Firebase Config
 const firebaseConfig = {
@@ -663,7 +672,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// ✅ ADD
+// ✅ حفظ المنتج في الداتابيس
 window.saveProductToDB = async function(product) {
   try {
     await addDoc(collection(db, "products"), product);
@@ -674,7 +683,7 @@ window.saveProductToDB = async function(product) {
   }
 };
 
-// ✅ LOAD
+// ✅ تحميل كل المنتجات من الداتابيس
 window.loadProductsFromDB = async function() {
   const snapshot = await getDocs(collection(db, "products"));
   let products = [];
@@ -686,35 +695,7 @@ window.loadProductsFromDB = async function() {
   return products;
 };
 
-// ✅ DELETE
-window.deleteProduct = async function(id){
-  if(!confirm('Delete this product from the store?')) return;
-
-  try {
-    const snapshot = await getDocs(collection(db, "products"));
-
-    for (const docItem of snapshot.docs) {
-      const data = docItem.data();
-
-      if (data.id === id) {
-        await deleteDoc(doc(db, "products", docItem.id));
-      }
-    }
-
-    alert("✅ Product deleted");
-
-    loadProductsFromDB().then(products => {
-      renderShop(products);
-      renderAdminList();
-    });
-
-  } catch (err) {
-    console.error(err);
-    alert("❌ Error deleting product");
-  }
-};
-
-// ✅ LOAD on start
+// ✅ أول ما الصفحة تفتح
 window.addEventListener("load", () => {
   if (typeof renderShop === "function") {
     loadProductsFromDB().then(products => {
