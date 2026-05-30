@@ -326,7 +326,7 @@ function loadProducts(){
   }catch(e){products=JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));}
 }
 
-function renderShop(){
+function renderShop(products){
   const grid=document.getElementById('productGrid');
   grid.innerHTML='';
   products.forEach(p=>{
@@ -515,7 +515,10 @@ function addAdminProduct(){
     img: newImgData[0]
   });
 
-  renderShop();
+  loadProductsFromDB().then(products => {
+  renderShop(products);
+});
+
   renderAdminList();
 
   document.getElementById('newName').value='';
@@ -534,7 +537,19 @@ function addAdminProduct(){
 function deleteProduct(id){
   if(!confirm('Delete this product from the store?'))return;
   products=products.filter(p=>p.id!==id);
-  saveProducts();renderShop();renderAdminList();
+ saveProductToDB({
+    id: Date.now(),
+    name,
+    category,
+    price,
+    tag,
+    imgs: newImgData,
+    img: newImgData[0]
+  });
+  loadProductsFromDB().then(products => {
+  renderShop(products);
+});
+;renderAdminList();
 }
 
 function checkHash(){
@@ -550,7 +565,10 @@ const obs=new IntersectionObserver(entries=>{
 },{threshold:0.1});
 
 loadProducts();
-renderShop();
+loadProductsFromDB().then(products => {
+  renderShop(products);
+});
+
 document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
 </script>
   <script type="module">
