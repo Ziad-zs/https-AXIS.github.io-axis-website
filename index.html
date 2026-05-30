@@ -498,21 +498,39 @@ function addAdminProduct(){
   const price=parseInt(document.getElementById('newPrice').value);
   const category=document.getElementById('newCategory').value.trim();
   const tag=document.getElementById('newTag').value;
-  if(!name||!price||!category||!newImgData||!newImgData.length){alert('Please fill all fields and upload photos');return;}
-  products.push({id:Date.now(),name,category,price,tag,imgs:newImgData,img:newImgData[0]});
-  saveProducts();renderShop();renderAdminList();
+
+  if(!name||!price||!category||!newImgData||!newImgData.length){
+    alert('Please fill all fields and upload photos');
+    return;
+  }
+
+  // ✅ بدل localStorage → Firebase
+  saveProductToDB({
+    id: Date.now(),
+    name,
+    category,
+    price,
+    tag,
+    imgs: newImgData,
+    img: newImgData[0]
+  });
+
+  renderShop();
+  renderAdminList();
+
   document.getElementById('newName').value='';
   document.getElementById('newPrice').value='';
   document.getElementById('newCategory').value='';
   document.getElementById('newTag').value='';
+
   document.getElementById('adminImgPreview').style.display='none';
   document.getElementById('adminImgLabel').textContent='Click to upload product photo';
   document.getElementById('adminImgInput').value='';
   document.getElementById('adminImgPreviewContainer').innerHTML='';
   newImgData=[];
+
   alert('Product added!');
 }
-
 function deleteProduct(id){
   if(!confirm('Delete this product from the store?'))return;
   products=products.filter(p=>p.id!==id);
@@ -534,6 +552,57 @@ const obs=new IntersectionObserver(entries=>{
 loadProducts();
 renderShop();
 document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+  <script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+// ✅ Firebase Config
+const firebaseConfig = {
+  apiKey: "AIzaSyC84m40p3e9Ekpt2mV5SjpqmMvr7ONBEBo",
+  authDomain: "axis-project-website.firebaseapp.com",
+  projectId: "axis-project-website",
+  storageBucket: "axis-project-website.firebasestorage.app",
+  messagingSenderId: "946736261661",
+  appId: "1:946736261661:web:eeea141f2c817f9500f4f4",
+  measurementId: "G-F6HFBC3EBG"
+};
+
+// ✅ Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// ✅ حفظ المنتج في الداتابيس
+window.saveProductToDB = async function(product) {
+  try {
+    await addDoc(collection(db, "products"), product);
+    alert("✅ Product Saved");
+  } catch (err) {
+    console.error(err);
+    alert("❌ Error saving product");
+  }
+};
+
+// ✅ تحميل كل المنتجات من الداتابيس
+window.loadProductsFromDB = async function() {
+  const snapshot = await getDocs(collection(db, "products"));
+  let products = [];
+
+  snapshot.forEach(doc => {
+    products.push({ id: doc.id, ...doc.data() });
+  });
+
+  return products;
+};
+
+// ✅ أول ما الصفحة تفتح
+window.addEventListener("load", () => {
+  if (typeof renderShop === "function") {
+    loadProductsFromDB().then(products => {
+      renderShop(products);
+    });
+  }
+});
 </script>
 </body>
 </html>
