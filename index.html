@@ -632,7 +632,7 @@ const obs=new IntersectionObserver(entries=>{
   entries.forEach((e,i)=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('visible'),i*100);obs.unobserve(e.target);}});
 },{threshold:0.1});
 
-loadProducts();
+//loadProducts();
 // loadProductsFromDB is called from module after load
 
 document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
